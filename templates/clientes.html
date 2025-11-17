@@ -1,0 +1,99 @@
+{% extends "layout.html" %} {% block content %}
+
+<h2 class="mb-3">Clientes</h2>
+
+<!-- Formulario para agregar cliente -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-body">
+    <form action="/clientes/nuevo" method="POST" class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label" for="nombre">Nombre</label>
+        <input
+          id="nombre"
+          name="nombre"
+          class="form-control"
+          placeholder="Nombre completo"
+          required
+        />
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label" for="telefono">Teléfono</label>
+        <input
+          id="telefono"
+          name="telefono"
+          class="form-control"
+          placeholder="Ej: 5551234567"
+        />
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label" for="direccion">Dirección</label>
+        <input
+          id="direccion"
+          name="direccion"
+          class="form-control"
+          placeholder="Dirección completa"
+        />
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label" for="correo">Correo</label>
+        <input
+          id="correo"
+          name="correo"
+          class="form-control"
+          placeholder="correo@ejemplo.com"
+        />
+      </div>
+
+      <div class="col-12">
+        <button type="submit" class="btn btn-success w-100">Agregar Cliente</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Tabla de clientes -->
+<table class="table table-bordered table-striped shadow-sm">
+  {% if session.get('idEmpleado') %}
+  <thead class="table-primary">
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Teléfono</th>
+      <th>Dirección</th>
+      <th>Correo</th>
+      <th>Estado</th>
+      {% if session.get('rol') == 'Admin' %}
+      <th>Acciones</th>
+      {% endif %}
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for c in clientes %}
+    <tr>
+      <td>{{ c.idcliente }}</td>
+      <td>{{ c.nombre }}</td>
+      <td>{{ c.telefono }}</td>
+      <td>{{ c.direccion }}</td>
+      <td>{{ c.correo }}</td>
+      <td>{{ c.estado }}</td>
+      {% if session.get('rol') == 'Admin' %}
+      <td>
+        <a href="/clientes/detalle/{{ c.idcliente }}" class="btn btn-sm btn-primary"
+          >Editar</a
+        >
+        <a href="/clientes/eliminar/{{ c.idcliente }}" class="btn btn-sm btn-danger"
+          >Eliminar</a
+        >
+      </td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+  {% endif %}
+</table>
+
+{% endblock %}

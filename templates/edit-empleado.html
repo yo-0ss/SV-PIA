@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="mb-4">Editar Empleado</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <form action="/empleados/actualizar/{{ empleado.idempleado }}" method="POST" class="row g-3">
+
+            <div class="col-md-6">
+                <label class="form-label" for="nombre">Nombre</label>
+                <input id="nombre" name="nombre" class="form-control" required
+                       value="{{ empleado.nombre }}" placeholder="Nombre completo">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="puesto">Puesto</label>
+                <input id="puesto" name="puesto" class="form-control" required
+                       value="{{ empleado.puesto }}" placeholder="Puesto del empleado">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="telefono">Teléfono</label>
+                <input id="telefono" name="telefono" class="form-control"
+                       value="{{ empleado.telefono }}" placeholder="5551234567">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="correo">Correo</label>
+                <input id="correo" name="correo" type="email" class="form-control"
+                       value="{{ empleado.correo }}" placeholder="correo@ejemplo.com">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="usuario">Usuario</label>
+                <input id="usuario" name="usuario" class="form-control" required
+                       value="{{ empleado.usuario }}" placeholder="Nombre de usuario">
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="password">Nueva contraseña</label>
+                <input id="password" type="password" name="password" class="form-control"
+                       placeholder="(Opcional) Ingresar solo si deseas cambiarla">
+                <small class="text-muted">Deja este campo vacío si no deseas cambiar la contraseña.</small>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="rol">Rol</label>
+                <select id="rol" name="rol" class="form-select" required>
+                    <option value="Vendedor" {% if empleado.rol == 'Vendedor' %} selected {% endif %}>Vendedor</option>
+                    <option value="Admin" {% if empleado.rol == 'Admin' %} selected {% endif %}>Administrador</option>
+                </select>
+            </div>
+
+            <div class="col-12 mt-3">
+                <button type="submit" class="btn btn-primary w-100">Guardar Cambios</button>
+            </div>
+
+        </form>
+
+        <a href="/empleados" class="btn btn-secondary mt-3 w-100">
+            Cancelar y Regresar
+        </a>
+    </div>
+</div>
+
+{% endblock %}

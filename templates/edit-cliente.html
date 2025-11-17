@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+  <h2 class="mb-3">Editar Cliente</h2>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+
+      <form action="/clientes/actualizar/{{ cliente.idcliente }}" method="POST" class="row g-3">
+
+        <div class="col-md-6">
+          <label for="nombre" class="form-label">Nombre</label>
+          <input
+            type="text"
+            id="nombre"
+            name="nombre"
+            class="form-control"
+            value="{{ cliente.nombre }}"
+            required
+          >
+        </div>
+
+        <div class="col-md-6">
+          <label for="telefono" class="form-label">Teléfono</label>
+          <input
+            type="text"
+            id="telefono"
+            name="telefono"
+            class="form-control"
+            value="{{ cliente.telefono }}"
+          >
+        </div>
+
+        <div class="col-md-6">
+          <label for="direccion" class="form-label">Dirección</label>
+          <input
+            type="text"
+            id="direccion"
+            name="direccion"
+            class="form-control"
+            value="{{ cliente.direccion }}"
+          >
+        </div>
+
+        <div class="col-md-6">
+          <label for="correo" class="form-label">Correo</label>
+          <input
+            type="email"
+            id="correo"
+            name="correo"
+            class="form-control"
+            value="{{ cliente.correo }}"
+          >
+        </div>
+
+        <div class="col-md-6">
+          <label for="estado" class="form-label">Estado</label>
+          <select id="estado" name="estado" class="form-select">
+            <option value="Activo"  {% if cliente.estado == "Activo" %}selected{% endif %}>Activo</option>
+            <option value="Inactivo" {% if cliente.estado == "Inactivo" %}selected{% endif %}>Inactivo</option>
+          </select>
+        </div>
+
+        <div class="col-12 mt-3">
+          <button type="submit" class="btn btn-primary w-100">
+            Guardar Cambios
+          </button>
+        </div>
+
+        <div class="col-12 mt-2">
+          <a href="/clientes/" class="btn btn-secondary w-100">Cancelar</a>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
