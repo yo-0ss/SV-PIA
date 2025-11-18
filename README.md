@@ -26,7 +26,7 @@ Edita el archivo donde se encuentra la conexión (conexion.py) y ajusta tus dato
 host="localhost"
 user="TU_USUARIO"
 password="TU_PASSWORD"
-database="equipo7"
+database="piabd"
 
 ## 📦 4. Instalar dependencias
 
