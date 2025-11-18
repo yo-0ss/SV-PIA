@@ -1,0 +1,36 @@
+{% extends "layout.html" %} {% block content %}
+
+<h2 class="mb-3">Reporte de Bonificaciones ({{ bono }})</h2>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <table class="table table-bordered table-striped">
+      <thead class="table-primary">
+        <tr>
+          <th>ID Empleado</th>
+          <th>Nombre</th>
+          <th>Rol</th>
+          <th>Total Vendido (Pagado)</th>
+          <th>Bonificación Calculada</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if reporte %} {% for bono in reporte %}
+        <tr>
+          <td>{{ bono.id_empleado }}</td>
+          <td>{{ bono.nombre_empleado }}</td>
+          <td>{{ bono.rol }}</td>
+          <td>${{ "%.2f"|format(bono.total_vendido) }}</td>
+          <td class="text-success fw-bold">${{ "%.2f"|format(bono.bonificacion_calculada) }}</td>
+        </tr>
+        {% endfor %} {% else %}
+        <tr>
+          <td colspan="5" class="text-center">No hay datos para calcular bonificaciones.</td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

@@ -40,9 +40,20 @@
               <a class="nav-link" href="/ventas">Ventas</a>
             </li>
 
-            {% if session.get('rol') == 'Admin' %}
+           {% if session.get('rol') == 'Admin' %}
             <li class="nav-item">
               <a class="nav-link" href="/empleados">Empleados</a>
+            </li>
+            
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Reportes
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="/reportes/bajo_stock">Reporte: Bajo Stock</a></li>
+                <li><a class="dropdown-item" href="/reportes/ventas_empleado">Reporte: Ventas Empleado</a></li>
+                <li><a class="dropdown-item" href="/reportes/bonificaciones">Reporte: Bonificaciones</a></li>
+              </ul>
             </li>
             {% endif %}
           </ul>

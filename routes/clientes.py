@@ -4,16 +4,41 @@ from utils.seguridad import login_requerido, admin_requerido
 
 clientes_bp = Blueprint('clientes', __name__, url_prefix="/clientes")
 
-@clientes_bp.route('/')
+@clientes_bp.route('/', methods=['GET'])
 @login_requerido
 def lista_clientes():
+
+    # Obtener parámetros de búsqueda
+    busqueda = request.args.get('buscar', '').strip()
+    estado = request.args.get('estado', '').strip()
+
     conexion = get_connection()
     cursor = conexion.cursor()
-    cursor.execute("SELECT * FROM cliente")
+
+    sql = "SELECT * FROM cliente WHERE 1=1"
+    valores = []
+
+    # FILTRO POR NOMBRE O TELÉFONO (búsqueda parcial)
+    if busqueda:
+        sql += " AND (nombre LIKE %s OR telefono LIKE %s)"
+        valores.append(f"%{busqueda}%")
+        valores.append(f"%{busqueda}%")
+
+    # FILTRO POR ESTADO (Activo / Inactivo)
+    if estado in ["Activo", "Inactivo"]:
+        sql += " AND estado = %s"
+        valores.append(estado)
+
+    cursor.execute(sql, valores)
     clientes = cursor.fetchall()
     conexion.close()
 
-    return render_template("clientes.html", clientes=clientes)
+    return render_template(
+        "clientes.html",
+        clientes=clientes,
+        buscar=busqueda,
+        estado=estado
+    )
 
 @clientes_bp.route('/nuevo', methods=['POST'])
 @login_requerido

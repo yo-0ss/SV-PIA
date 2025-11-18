@@ -54,6 +54,34 @@
   </div>
 </div>
 
+<!-- BUSQUEDA Y FILTROS -->
+<form method="GET" action="/clientes/" class="row g-3 mb-4">
+
+  <div class="col-md-6">
+    <input
+      type="text"
+      name="buscar"
+      class="form-control"
+      placeholder="Buscar por nombre o teléfono"
+      value="{{ buscar }}"
+    >
+  </div>
+
+  <div class="col-md-4">
+    <select name="estado" class="form-select" title="Filtrar por estado">
+      <option value="">-- Todos los estados --</option>
+      <option value="Activo" {% if estado == "Activo" %}selected{% endif %}>Activo</option>
+      <option value="Inactivo" {% if estado == "Inactivo" %}selected{% endif %}>Inactivo</option>
+    </select>
+  </div>
+
+  <div class="col-md-2">
+    <button class="btn btn-primary w-100" type="submit">Buscar</button>
+  </div>
+
+</form>
+
+
 <!-- Tabla de clientes -->
 <table class="table table-bordered table-striped shadow-sm">
   {% if session.get('idEmpleado') %}

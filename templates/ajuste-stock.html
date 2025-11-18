@@ -1,0 +1,32 @@
+{% extends "layout.html" %} {% block content %}
+
+<h2>Ajuste de Stock – {{ producto.nombre }}</h2>
+
+<div class="card mt-3 shadow-sm">
+  <div class="card-body">
+    <p><strong>Stock actual:</strong> {{ producto.stock }}</p>
+
+    <form method="POST">
+      <label class="form-label">Cantidad (+ aumenta / - disminuye)</label>
+      <input
+        type="number"
+        name="cantidad"
+        class="form-control mb-3"
+        placeholder="Ej. +5, -5"
+        required
+      />
+
+      <label class="form-label">Motivo del ajuste</label>
+      <textarea
+        name="motivo"
+        class="form-control mb-3"
+        required
+        placeholder="Escribe tu motivo..."
+      ></textarea>
+
+      <button type="submit" class="btn btn-success w-100">Guardar Ajuste</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

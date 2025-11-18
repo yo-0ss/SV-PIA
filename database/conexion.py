@@ -5,6 +5,6 @@ def get_connection():
         host="localhost",
         user="root",
         password="root123",
-        database="equipo7",
+        database="piabd",
         cursorclass=pymysql.cursors.DictCursor
     )

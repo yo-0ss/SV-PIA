@@ -8,7 +8,7 @@
   <div class="card shadow-sm">
     <div class="card-body">
 
-      <form action="/productos/actualizar/{{ producto.idProducto }}" method="POST" class="row g-3">
+      <form action="/productos/actualizar/{{ producto.idproducto }}" method="POST" class="row g-3">
 
         <div class="col-md-6">
           <label class="form-label">Nombre</label>
@@ -57,15 +57,15 @@
             class="form-control"
             value="{{ producto.stock }}"
             placeholder="100"
-            required
+            disabled
           >
         </div>
 
         <div class="col-md-4">
           <label class="form-label">Activo</label>
-          <select name="Estado" class="form-select" title="Estado">
-            <option value="1" {% if producto.activo == 1 %}selected{% endif %}>Activo</option>
-            <option value="0" {% if producto.activo == 0 %}selected{% endif %}>Inactivo</option>
+          <select name="activo" class="form-select" title="Estado">
+            <option value="1" {% if producto.activo == 1 %}selected{% endif %}>activo</option>
+            <option value="0" {% if producto.activo == 0 %}selected{% endif %}>inactivo</option>
           </select>
         </div>
 
@@ -81,6 +81,13 @@
         </div>
 
         <div class="col-12 mt-3">
+          <a href="/productos/ajustar/{{ producto.idproducto }}" 
+           class="btn btn-warning w-100">
+          Ajuste de Stock
+        </a>
+        </div>
+
+        <div class="col-12 mt-3">
           <button type="submit" class="btn btn-primary w-100">Guardar Cambios</button>
         </div>
 
@@ -93,5 +100,42 @@
     </div>
   </div>
 </div>
+
+<hr class="my-4" />
+
+<h4>Historial de Ajustes de Stock</h4>
+
+{% if ajustes|length == 0 %}
+    <p class="text-muted">Este producto no tiene ajustes de stock registrados.</p>
+{% else %}
+<table class="table table-bordered table-striped mt-3">
+    <thead class="table-secondary">
+        <tr>
+            <th>ID Ajuste</th>
+            <th>Cantidad</th>
+            <th>Motivo</th>
+            <th>Empleado</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in ajustes %}
+        <tr>
+            <td>{{ a.idajuste }}</td>
+            <td>
+                {% if a.cantidad > 0 %}
+                    <span class="text-success">+{{ a.cantidad }}</span>
+                {% else %}
+                    <span class="text-danger">{{ a.cantidad }}</span>
+                {% endif %}
+            </td>
+            <td>{{ a.motivo }}</td>
+            <td>{{ a.empleado }}</td>
+            <td>{{ a.fecha }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
 
 {% endblock %}

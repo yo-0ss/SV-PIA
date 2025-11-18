@@ -9,12 +9,37 @@ empleados_bp = Blueprint('empleados', __name__, url_prefix="/empleados")
 @login_requerido
 @admin_requerido
 def lista_empleados():
+    buscar = request.args.get('buscar', '').strip()
+    rol_filtro = request.args.get('rol', '').strip()
+    estado = request.args.get('estado', '').strip()
+
     conexion = get_connection()
     cursor = conexion.cursor()
-    cursor.execute("SELECT idEmpleado, nombre, puesto, telefono, correo, rol FROM empleado")
+
+    sql = "SELECT * FROM empleado WHERE 1=1"
+    valores = []
+
+    # BUSQUEDA POR NOMBRE, PUESTO, CORREO
+    if buscar:
+        sql += " AND (nombre LIKE %s OR puesto LIKE %s OR correo LIKE %s)"
+        valores += [f"%{buscar}%", f"%{buscar}%", f"%{buscar}%"]
+
+    # FILTRO POR ROL
+    if rol_filtro:
+        sql += " AND rol = %s"
+        valores.append(rol_filtro)
+
+    # FILTRO POR ESTADO
+    if estado:
+        sql += " AND estado = %s"
+        valores.append(estado)
+
+    cursor.execute(sql, valores)
     empleados = cursor.fetchall()
     conexion.close()
-    return render_template("empleados.html", empleados=empleados)
+
+    return render_template("empleados.html", empleados=empleados,
+                           buscar=buscar, rol=rol_filtro, estado=estado)
 
 # --- AGREGAR EMPLEADO ---
 @empleados_bp.route('/nuevo', methods=['POST'])
@@ -34,6 +59,20 @@ def nuevo_empleado():
 
     conexion = get_connection()
     cursor = conexion.cursor()
+
+    cursor.execute("SELECT * FROM empleado WHERE correo = %s", (correo,))
+    if cursor.fetchone():
+        flash("Ya existe un empleado con ese correo.")
+        return redirect(url_for('empleados.lista_empleados'))
+    
+    if "@" not in correo or "." not in correo:
+        flash("Correo inválido.")
+        return redirect(url_for('empleados.lista_empleados'))
+    
+    if telefono and not telefono.isdigit():
+        flash("El teléfono solo debe tener números.")
+        return redirect(url_for('empleados.lista_empleados'))
+
     cursor.execute("""
         INSERT INTO empleado(nombre, puesto, telefono, correo, usuario, password_hash, rol)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
@@ -52,6 +91,12 @@ def nuevo_empleado():
 def eliminar_empleado(id):
     conexion = get_connection()
     cursor = conexion.cursor()
+
+    cursor.execute("SELECT * FROM venta WHERE idEmpleado=%s", (id,))
+    if cursor.fetchone():
+        conexion.close()
+        flash("No se puede eliminar: el empleado tiene ventas registradas.")
+        return redirect(url_for('empleados.lista_empleados'))
     cursor.execute("DELETE FROM empleado WHERE idEmpleado=%s", (id,))
     conexion.commit()
     conexion.close()
@@ -95,6 +140,22 @@ def actualizar_empleado(id):
     conexion = get_connection()
     cursor = conexion.cursor()
 
+    cursor.execute("SELECT idEmpleado FROM empleado WHERE correo = %s AND idEmpleado != %s", 
+               (correo, id))
+    if cursor.fetchone():
+        flash("Correo ya registrado por otro empleado.")
+        return redirect(url_for('empleados.get_empleado', id=id))
+    
+    # Validación correo
+    if "@" not in correo or "." not in correo:
+        flash("Correo inválido.")
+        return redirect(url_for('empleados.get_empleado', id=id))
+
+    # Validación teléfono
+    if telefono and not telefono.isdigit():
+        flash("El teléfono solo debe tener números.")
+        return redirect(url_for('empleados.get_empleado', id=id))
+
     # Si el usuario NO escribió nueva contraseña → NO modificar password_hash
     if nueva_password.strip() == "":
         cursor.execute("""
@@ -119,4 +180,24 @@ def actualizar_empleado(id):
     conexion.close()
 
     flash("Empleado actualizado correctamente.")
+    return redirect(url_for('empleados.lista_empleados'))
+
+@empleados_bp.route('/estado/<int:id>/<string:nuevo_estado>')
+@login_requerido
+@admin_requerido
+def cambiar_estado_empleado(id, nuevo_estado):
+
+    conexion = get_connection()
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+        UPDATE empleado
+        SET estado = %s
+        WHERE idEmpleado = %s
+    """, (nuevo_estado, id))
+
+    conexion.commit()
+    conexion.close()
+
+    flash("Estado del empleado actualizado.")
     return redirect(url_for('empleados.lista_empleados'))

@@ -1,0 +1,36 @@
+{% extends "layout.html" %} {% block content %}
+
+<h2 class="mb-3">Reporte de Ventas por Empleado</h2>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <table class="table table-bordered table-striped">
+      <thead class="table-primary">
+        <tr>
+          <th>ID Empleado</th>
+          <th>Nombre</th>
+          <th>Puesto</th>
+          <th>N° de Ventas</th>
+          <th>Monto Total Vendido</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if reporte %} {% for emp in reporte %}
+        <tr>
+          <td>{{ emp.idempleado }}</td>
+          <td>{{ emp.nombre }}</td>
+          <td>{{ emp.puesto }}</td>
+          <td>{{ emp.numero_ventas }}</td>
+          <td>${{ "%.2f"|format(emp.monto_total_vendido) }}</td>
+        </tr>
+        {% endfor %} {% else %}
+        <tr>
+          <td colspan="5" class="text-center">No hay datos de ventas para mostrar.</td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "layout.html" %} {% block content %}
+
+<h2 class="mb-3">Reporte de Productos con Bajo Stock</h2>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h5 class="mb-3">
+      Mostrando productos con stock menor o igual a:
+      <span class="badge bg-warning text-dark">{{ umbral }}</span> unidades.
+    </h5>
+
+    <table class="table table-bordered table-striped">
+      <thead class="table-danger">
+        <tr>
+          <th>ID Producto</th>
+          <th>Nombre del Producto</th>
+          <th>Stock Actual</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if reporte %} {% for producto in reporte %}
+        <tr>
+          <td>{{ producto.idproducto }}</td>
+          <td>{{ producto.nombre_producto }}</td>
+          <td>{{ producto.stock_actual }}</td>
+        </tr>
+        {% endfor %} {% else %}
+        <tr>
+          <td colspan="3" class="text-center">
+            ¡Buenas noticias! No hay productos con bajo stock.
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<a href="/" class="btn btn-secondary mt-3">Volver al inicio</a>
+
+{% endblock %}

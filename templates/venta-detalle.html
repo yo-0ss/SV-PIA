@@ -1,0 +1,132 @@
+{% extends "layout.html" %} {% block content %}
+
+<h2 class="mb-3">Detalle de Venta #{{ venta.idventa }}</h2>
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-4">
+        <strong>Cliente:</strong> {{ venta.nombre_cliente }}
+      </div>
+      <div class="col-md-4">
+        <strong>Vendedor:</strong> {{ venta.nombre_empleado }}
+      </div>
+      <div class="col-md-4">
+        <strong>Fecha:</strong> {{ venta.fecha }}
+      </div>
+    </div>
+    <hr />
+    <div class="row align-items-center">
+      <div class="col-md-4">
+        <h4>Total: ${{ "%.2f"|format(venta.total_venta) }}</h4>
+      </div>
+      <div class="col-md-4">
+        <strong>Estado actual:</strong> {{ venta.estado_venta }}
+      </div>
+
+      <div class="col-md-4">
+        <form
+          action="/ventas/detalle/{{ venta.idventa }}/actualizar_estado"
+          method="POST"
+          class="d-flex"
+        >
+          <select name="estado" class="form-select me-2">
+            <option value="nuevo" {% if venta.estado_venta == 'nuevo' %}selected{% endif %}>Nuevo</option>
+            <option value="Pagado" {% if venta.estado_venta == 'Pagado' %}selected{% endif %}>Pagado</option>
+            <option value="Entregado" {% if venta.estado_venta == 'Entregado' %}selected{% endif %}>Entregado</option>
+          </select>
+          <button type="submit" class="btn btn-warning btn-sm">Cambiar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if venta.estado_venta == 'nuevo' %}
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h5 class="mb-3">Agregar Producto</h5>
+    <form
+      action="/ventas/detalle/{{ venta.idventa }}/agregar_producto"
+      method="POST"
+      class="row g-3"
+    >
+      <div class="col-md-6">
+        <label class="form-label">Producto</label>
+        <select name="idproducto" class="form-select" required>
+          <option value="" disabled selected>-- Selecciona --</option>
+          {% for p in productos %}
+          <option value="{{ p.idproducto }}">
+            {{ p.nombre }} (Stock: {{ p.stock }})
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Cantidad</label>
+        <input
+          type="number"
+          name="cantidad"
+          class="form-control"
+          value="1"
+          min="1"
+          required
+        />
+      </div>
+      <div class="col-md-3 d-flex align-items-end">
+        <button typeS="submit" class="btn btn-primary w-100">Agregar</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h5 class="mb-3">Productos en esta Venta</h5>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio Unitario</th>
+          <th>Subtotal</th>
+          {% if venta.estado_venta == 'nuevo' %}
+          <th>Acción</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in detalles %} {% if d.idproducto %} <tr>
+          <td>{{ d.nombre_producto }}</td>
+          <td>{{ d.cantidad }}</td>
+          <td>${{ "%.2f"|format(d.preciounitario) }}</td>
+          <td>${{ "%.2f"|format(d.subtotal) }}</td>
+          {% if venta.estado_venta == 'nuevo' %}
+          <td>
+            <a
+              href="/ventas/detalle/eliminar_producto/{{ d.iddetalle }}"
+              class="btn btn-danger btn-sm"
+              onclick="return confirm('¿Quitar este producto?')"
+              >Quitar</a
+            >
+          </td>
+          {% endif %}
+        </tr>
+        {% endif %} {% endfor %} </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="mt-4">
+  <a href="/ventas/" class="btn btn-secondary">Volver al Listado</a>
+  {% if venta.estado_venta == 'nuevo' %}
+  <a
+    href="/ventas/{{ venta.idventa }}/cancelar"
+    class="btn btn-danger"
+    onclick="return confirm('¿Cancelar esta venta? El stock será devuelto.')"
+    >Cancelar Venta</a
+  >
+  {% endif %}
+</div>
+
+{% endblock %}

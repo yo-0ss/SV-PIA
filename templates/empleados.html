@@ -77,8 +77,8 @@
       <div class="col-md-6">
         <label for="rol" class="form-label">Rol</label>
         <select id="rol" name="rol" class="form-select" required>
-          <option value="vendedor">Vendedor</option>
-          <option value="admin">Administrador</option>
+          <option value="Vendedor">Vendedor</option>
+          <option value="Admin">Administrador</option>
         </select>
       </div>
 
@@ -88,6 +88,47 @@
     </form>
   </div>
 </div>
+
+<!-- Filtros de búsqueda -->
+<form method="GET" action="/empleados/" class="row g-3 mb-4">
+
+  <!-- Buscar por nombre, puesto, correo -->
+  <div class="col-md-6">
+    <input 
+      type="text" 
+      name="buscar" 
+      class="form-control"
+      placeholder="Buscar por nombre, puesto o correo"
+      value="{{ buscar }}"
+    />
+  </div>
+
+  <!-- Filtrar por Rol -->
+  <div class="col-md-3">
+    <select name="rol" class="form-select" title="Rol">
+      <option value="">-- Rol --</option>
+      <option value="Vendedor" {% if rol == 'Vendedor' %}selected{% endif %}>Vendedor</option>
+      <option value="Admin" {% if rol == 'Admin' %}selected{% endif %}>Administrador</option>
+    </select>
+  </div>
+
+  <!-- Filtrar por Estado -->
+  <div class="col-md-3">
+    <select name="estado" class="form-select" title="Estado">
+      <option value="">-- Estado --</option>
+      <option value="Activo" {% if estado == 'Activo' %}selected{% endif %}>Activo</option>
+      <option value="Inactivo" {% if estado == 'Inactivo' %}selected{% endif %}>Inactivo</option>
+    </select>
+  </div>
+
+  <div class="col-12">
+    <button class="btn btn-primary w-100" type="submit">
+      Buscar / Filtrar
+    </button>
+  </div>
+
+</form>
+
 
 <!-- Tabla de empleados -->
 <div class="card shadow-sm">
@@ -110,26 +151,40 @@
       <tbody>
         {% for emp in empleados %}
         <tr>
-          <td>{{ emp.idEmpleado }}</td>
+          <td>{{ emp.idempleado }}</td>
           <td>{{ emp.nombre }}</td>
           <td>{{ emp.puesto }}</td>
           <td>{{ emp.telefono }}</td>
           <td>{{ emp.correo }}</td>
           <td>{{ emp.rol }}</td>
           <td>
+            {% if emp.estado == 'Activo' %}
             <a
-              href="/empleados/detalle/{{ emp.idEmpleado }}"
-              class="btn btn-warning btn-sm me-1"
+              class="btn btn-warning btn-sm"
+              href="/empleados/estado/{{ emp.idempleado }}/Inactivo"
+              >Desactivar</a
+            >
+            {% else %}
+            <a
+              class="btn btn-success btn-sm"
+              href="/empleados/estado/{{ emp.idempleado }}/Activo"
+              >Activar</a
+            >
+            {% endif %}
+            <a
+              href="/empleados/detalle/{{ emp.idempleado }}"
+              class="btn btn-info btn-sm me-1"
             >
               Editar
             </a>
             <a
-              href="/empleados/eliminar/{{ emp.idEmpleado }}"
+              href="/empleados/eliminar/{{ emp.idempleado }}"
               class="btn btn-danger btn-sm"
               onclick="return confirm('¿Eliminar este empleado?')"
             >
               Eliminar
             </a>
+            
           </td>
         </tr>
         {% endfor %}

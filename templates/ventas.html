@@ -1,1 +1,88 @@
-{% extends 'layout.html' %} {% block body %} {% endblock %}
+{% extends "layout.html" %} {% block content %}
+
+<h2 class="mb-3">Módulo de Ventas</h2>
+
+<div class="card mb-4 shadow-sm">
+  <div class="card-body">
+    <a href="/ventas/nuevo" class="btn btn-success w-100">Registrar Nueva Venta</a>
+  </div>
+</div>
+
+<form method="GET" action="/ventas/" class="row g-3 mb-4">
+  <div class="col-md-4">
+    <input
+      type="text"
+      name="buscar"
+      value="{{ buscar }}"
+      class="form-control"
+      placeholder="Buscar cliente"
+    />
+  </div>
+
+  <div class="col-md-3">
+    <input
+      type="date"
+      name="fecha"
+      value="{{ fecha }}"
+      class="form-control"
+      placeholder="Fecha"
+    />
+  </div>
+
+  <div class="col-md-3">
+    <input
+      type="text"
+      name="empleado"
+      value="{{ empleado }}"
+      class="form-control"
+      placeholder="Buscar empleado"
+    />
+  </div>
+
+  <div class="col-md-2">
+    <button class="btn btn-primary w-100" type="submit">Filtrar</button>
+  </div>
+</form>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h5 class="mb-3">Historial de Ventas</h5>
+    <table class="table table-bordered table-striped">
+      <thead class="table-primary">
+        <tr>
+          <th>ID Venta</th>
+          <th>Fecha</th>
+          <th>Cliente</th>
+          <th>Vendedor</th>
+          <th>Total</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in ventas %}
+        <tr>
+          <td>{{ v.idventa }}</td>
+          <td>{{ v.fecha }}</td>
+          <td>{{ v.cliente }}</td>
+          <td>{{ v.empleado }}</td>
+          <td>${{ "%.2f"|format(v.total) }}</td>
+          <td>
+            <span
+              class="badge {% if v.estado == 'nuevo' %} bg-secondary {% elif v.estado == 'Pagado' %} bg-success {% elif v.estado == 'Entregado' %} bg-info {% elif v.estado == 'Cancelado' %} bg-danger {% endif %}"
+              >{{ v.estado }}</span
+            >
+          </td>
+          <td>
+            <a href="/ventas/detalle/{{ v.idventa }}" class="btn btn-sm btn-primary"
+              >Ver/Editar Detalle</a
+            >
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
