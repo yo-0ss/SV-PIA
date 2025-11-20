@@ -50,6 +50,21 @@ def nuevo_cliente():
 
     conexion = get_connection()
     cursor = conexion.cursor()
+
+    # --- Validar teléfono o correo duplicado ---
+    cursor.execute("""
+        SELECT idCliente FROM cliente 
+        WHERE telefono=%s OR correo=%s
+    """, (telefono, correo))
+
+    existe = cursor.fetchone()
+
+    if existe:
+        conexion.close()
+        flash("Error: El teléfono o correo ya está registrado para otro cliente.")
+        return redirect(url_for('clientes.lista_clientes'))
+
+    # --- INSERTAR CLIENTE ---
     cursor.execute("""
         INSERT INTO cliente(nombre, telefono, direccion, correo)
         VALUES (%s, %s, %s, %s)
@@ -108,6 +123,20 @@ def actualizar_cliente(id):
     conexion = get_connection()
     cursor = conexion.cursor()
 
+    # --- Validar duplicados excepto el mismo cliente ---
+    cursor.execute("""
+        SELECT idCliente FROM cliente 
+        WHERE (telefono=%s OR correo=%s) AND idCliente != %s
+    """, (telefono, correo, id))
+
+    existe = cursor.fetchone()
+
+    if existe:
+        conexion.close()
+        flash("Error: El teléfono o correo pertenece a otro cliente.")
+        return redirect(url_for('clientes.get_cliente', id=id))
+
+    # --- Actualizar cliente ---
     cursor.execute("""
         UPDATE cliente 
         SET nombre=%s, telefono=%s, direccion=%s, correo=%s, estado=%s

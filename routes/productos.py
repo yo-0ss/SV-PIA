@@ -48,8 +48,8 @@ def nuevo_producto():
         flash("El nombre no puede estar vacío.")
         return redirect(url_for('productos.lista_productos'))
 
-    if precio < 0 or stock < 0:
-        flash("El precio y el stock deben ser mayores o iguales a 0.")
+    if precio < 0.1 or stock < 0:
+        flash("El precio y el stock deben ser mayores o iguales a 0.1.")
         return redirect(url_for('productos.lista_productos'))
 
     conexion = get_connection()
@@ -109,13 +109,29 @@ def actualizar_producto(id):
     precio = float(request.form['precio'])
     activo = int(request.form['activo'])  # 0 o 1
 
-    if precio < 0:
+    # --- Validación de precio ---
+    if precio < 0.1:
         flash("El precio no puede ser negativo.")
-        return redirect(url_for('productos.editar_producto', id=id))
+        return redirect(url_for('productos.get_producto', id=id))
 
     conexion = get_connection()
     cursor = conexion.cursor()
 
+    # --- Validar que no exista otro producto con el mismo nombre ---
+    cursor.execute("""
+        SELECT idProducto 
+        FROM producto 
+        WHERE nombre = %s AND idProducto != %s
+    """, (nombre, id))
+
+    existe = cursor.fetchone()
+
+    if existe:
+        conexion.close()
+        flash("Ya existe otro producto con ese nombre.")
+        return redirect(url_for('productos.get_producto', id=id))
+
+    # --- Actualizar el producto ---
     cursor.execute("""
         UPDATE producto
         SET nombre=%s, categoria=%s, precio=%s, activo=%s

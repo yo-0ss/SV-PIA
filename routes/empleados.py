@@ -60,23 +60,45 @@ def nuevo_empleado():
     conexion = get_connection()
     cursor = conexion.cursor()
 
-    cursor.execute("SELECT * FROM empleado WHERE correo = %s", (correo,))
+    # --- Validar correo duplicado ---
+    cursor.execute("SELECT idEmpleado FROM empleado WHERE correo = %s", (correo,))
     if cursor.fetchone():
+        conexion.close()
         flash("Ya existe un empleado con ese correo.")
         return redirect(url_for('empleados.lista_empleados'))
-    
+
+    # --- Validar usuario duplicado ---
+    cursor.execute("SELECT idEmpleado FROM empleado WHERE usuario = %s", (usuario,))
+    if cursor.fetchone():
+        conexion.close()
+        flash("Ya existe un empleado con ese usuario.")
+        return redirect(url_for('empleados.lista_empleados'))
+
+    # --- Validar teléfono duplicado ---
+    cursor.execute("SELECT idEmpleado FROM empleado WHERE telefono = %s", (telefono,))
+    if telefono and cursor.fetchone():
+        conexion.close()
+        flash("Ya existe un empleado con ese teléfono.")
+        return redirect(url_for('empleados.lista_empleados'))
+
+    # --- Validación correo ---
     if "@" not in correo or "." not in correo:
+        conexion.close()
         flash("Correo inválido.")
         return redirect(url_for('empleados.lista_empleados'))
-    
+
+    # --- Validación teléfono numérico ---
     if telefono and not telefono.isdigit():
+        conexion.close()
         flash("El teléfono solo debe tener números.")
         return redirect(url_for('empleados.lista_empleados'))
 
+    # --- INSERT ---
     cursor.execute("""
         INSERT INTO empleado(nombre, puesto, telefono, correo, usuario, password_hash, rol)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
     """, (nombre, puesto, telefono, correo, usuario, hash_password, rol))
+
     conexion.commit()
     conexion.close()
 
@@ -134,44 +156,67 @@ def actualizar_empleado(id):
     correo = request.form['correo']
     usuario = request.form['usuario']
     rol = request.form['rol']
-
-    nueva_password = request.form['password']  # contraseña SIN hash del formulario
+    nueva_password = request.form['password']
 
     conexion = get_connection()
     cursor = conexion.cursor()
 
-    cursor.execute("SELECT idEmpleado FROM empleado WHERE correo = %s AND idEmpleado != %s", 
-               (correo, id))
+    # --- Validar correo duplicado ---
+    cursor.execute("""
+        SELECT idEmpleado FROM empleado 
+        WHERE correo = %s AND idEmpleado != %s
+    """, (correo, id))
     if cursor.fetchone():
+        conexion.close()
         flash("Correo ya registrado por otro empleado.")
         return redirect(url_for('empleados.get_empleado', id=id))
-    
-    # Validación correo
+
+    # --- Validar usuario duplicado ---
+    cursor.execute("""
+        SELECT idEmpleado FROM empleado 
+        WHERE usuario = %s AND idEmpleado != %s
+    """, (usuario, id))
+    if cursor.fetchone():
+        conexion.close()
+        flash("Usuario ya registrado por otro empleado.")
+        return redirect(url_for('empleados.get_empleado', id=id))
+
+    # --- Validar teléfono duplicado ---
+    cursor.execute("""
+        SELECT idEmpleado FROM empleado 
+        WHERE telefono = %s AND idEmpleado != %s
+    """, (telefono, id))
+    if telefono and cursor.fetchone():
+        conexion.close()
+        flash("Teléfono registrado por otro empleado.")
+        return redirect(url_for('empleados.get_empleado', id=id))
+
+    # --- Validación correo ---
     if "@" not in correo or "." not in correo:
+        conexion.close()
         flash("Correo inválido.")
         return redirect(url_for('empleados.get_empleado', id=id))
 
-    # Validación teléfono
+    # --- Validación teléfono ---
     if telefono and not telefono.isdigit():
+        conexion.close()
         flash("El teléfono solo debe tener números.")
         return redirect(url_for('empleados.get_empleado', id=id))
 
-    # Si el usuario NO escribió nueva contraseña → NO modificar password_hash
+    # --- Actualizar contraseña solo si se escribió ---
     if nueva_password.strip() == "":
         cursor.execute("""
             UPDATE empleado 
             SET nombre=%s, puesto=%s, telefono=%s, correo=%s, usuario=%s, rol=%s
             WHERE idEmpleado=%s
         """, (nombre, puesto, telefono, correo, usuario, rol, id))
-
     else:
-        # Si hay nueva contraseña → hash nuevo
         from werkzeug.security import generate_password_hash
         password_hash = generate_password_hash(nueva_password)
 
         cursor.execute("""
             UPDATE empleado 
-            SET nombre=%s, puesto=%s, telefono=%s, correo=%s, usuario=%s, 
+            SET nombre=%s, puesto=%s, telefono=%s, correo=%s, usuario=%s,
                 password_hash=%s, rol=%s
             WHERE idEmpleado=%s
         """, (nombre, puesto, telefono, correo, usuario, password_hash, rol, id))
